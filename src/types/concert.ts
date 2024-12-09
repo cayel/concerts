@@ -4,4 +4,5 @@ export interface Concert {
   bands: string[];
   venue: string;
   city: string;
+  attend?: string[];
 }
