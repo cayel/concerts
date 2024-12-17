@@ -4,12 +4,14 @@ import { MonthSection } from './MonthSection';
 import { LoadingState } from './LoadingState';
 import { ErrorState } from './ErrorState';
 import { VenueFilter } from './VenueFilter';
+import { NewFilter } from './NewFilter';
 import { useConcerts } from '../hooks/useConcerts';
-import { groupConcertsByMonth } from '../utils/dateUtils';
+import { groupConcertsByMonth, isRecentlyAdded } from '../utils/dateUtils';
 
 export const ConcertList: React.FC = () => {
   const { concerts, isLoading, isError } = useConcerts();
   const [selectedVenue, setSelectedVenue] = useState<string | null>(null);
+  const [showNewOnly, setShowNewOnly] = useState(false);
 
   const venues = useMemo(() => {
     if (!concerts) return [];
@@ -18,9 +20,13 @@ export const ConcertList: React.FC = () => {
 
   const filteredConcerts = useMemo(() => {
     if (!concerts) return [];
-    if (!selectedVenue) return concerts;
-    return concerts.filter(concert => concert.venue === selectedVenue);
-  }, [concerts, selectedVenue]);
+    
+    return concerts.filter(concert => {
+      const matchesVenue = !selectedVenue || concert.venue === selectedVenue;
+      const matchesNew = !showNewOnly || isRecentlyAdded(concert.dateAdded);
+      return matchesVenue && matchesNew;
+    });
+  }, [concerts, selectedVenue, showNewOnly]);
 
   const groupedConcerts = useMemo(() => {
     return groupConcertsByMonth(filteredConcerts);
@@ -38,11 +44,21 @@ export const ConcertList: React.FC = () => {
 
   return (
     <div>
-      <VenueFilter
-        venues={venues}
-        selectedVenue={selectedVenue}
-        onVenueSelect={setSelectedVenue}
-      />
+      <div className="flex flex-col md:flex-row gap-8 mb-8">
+        <div className="md:flex-1">
+          <VenueFilter
+            venues={venues}
+            selectedVenue={selectedVenue}
+            onVenueSelect={setSelectedVenue}
+          />
+        </div>
+        <div className="md:flex-1">
+          <NewFilter
+            showNewOnly={showNewOnly}
+            onToggle={setShowNewOnly}
+          />
+        </div>
+      </div>
       
       <div className="space-y-6">
         {Array.from(groupedConcerts.entries()).map(([month, monthConcerts]) => (

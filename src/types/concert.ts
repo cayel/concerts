@@ -5,4 +5,5 @@ export interface Concert {
   venue: string;
   city: string;
   attend?: string[];
+  dateAdded?: string;
 }

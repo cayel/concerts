@@ -25,3 +25,14 @@ export const groupConcertsByMonth = (concerts: Concert[]): Map<string, Concert[]
 
   return grouped;
 };
+
+export const isRecentlyAdded = (dateAdded?: string): boolean => {
+  if (!dateAdded) return false;
+  
+  const addedDate = new Date(dateAdded);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - addedDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  return diffDays <= 15;
+};

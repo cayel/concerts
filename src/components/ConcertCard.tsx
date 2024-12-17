@@ -1,6 +1,8 @@
 import React from 'react';
 import { Calendar, MapPin, Music, Users } from 'lucide-react';
 import { Concert } from '../types/concert';
+import { Badge } from './Badge';
+import { isRecentlyAdded } from '../utils/dateUtils';
 
 interface ConcertCardProps {
   concert: Concert;
@@ -13,11 +15,18 @@ export const ConcertCard: React.FC<ConcertCardProps> = ({ concert }) => {
     year: 'numeric'
   });
 
+  const isNew = isRecentlyAdded(concert.dateAdded);
+
   return (
     <div className="bg-white border-2 border-gray-100 rounded-xl p-6 hover:border-klein/30 transition-all duration-300 group">
-      <div className="flex items-center gap-3 text-klein mb-4">
-        <Calendar className="w-5 h-5" />
-        <span className="font-medium">{formattedDate}</span>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3 text-klein">
+          <Calendar className="w-5 h-5" />
+          <span className="font-medium">{formattedDate}</span>
+        </div>
+        {isNew && (
+          <Badge variant="new">New</Badge>
+        )}
       </div>
       
       <div className="flex items-start gap-3 mb-4">
@@ -47,12 +56,7 @@ export const ConcertCard: React.FC<ConcertCardProps> = ({ concert }) => {
             <span className="text-sm font-medium text-gray-700">Présents :</span>
             <div className="flex flex-wrap gap-2 mt-2">
               {concert.attend.map((trigram, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-klein/10 text-klein"
-                >
-                  {trigram}
-                </span>
+                <Badge key={index}>{trigram}</Badge>
               ))}
             </div>
           </div>
